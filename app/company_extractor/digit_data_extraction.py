@@ -1,7 +1,7 @@
 from datetime import datetime
 import pandas as pd
 import streamlit as st
-from app.policy_extraction_config import PolicyExtractorConfig
+from policy_extraction_config import PolicyExtractorConfig
 
 # Columns for final Excel
 COLUMNS = [
@@ -102,7 +102,7 @@ def extract_with_ai(llm, source_file):
 
 
 def main(uploaded_file):
-    st.title("Digit Insurance Policy Extractor")
+    st.subheader("Digit Insurance Policy Extraction")
     extractor = PolicyExtractorConfig(uploaded_file)
     llm = extractor.initialize_llm()
     if uploaded_file:

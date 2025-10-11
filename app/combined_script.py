@@ -1,7 +1,7 @@
 import streamlit as st
-from app.company_extractor import digit_data_extraction
-from app.company_extractor import reliance_data_extraction
-from app.company_extractor import tata_data_extraction
+from company_extractor import digit_data_extraction
+from company_extractor import reliance_data_extraction
+from company_extractor import tata_data_extraction
 from policy_extraction_config import PolicyExtractorConfig
 
 
