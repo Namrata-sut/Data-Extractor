@@ -1,24 +1,7 @@
-import pandas as pd
-import pdfplumber
-import os
-import json
 from datetime import datetime
+import pandas as pd
 import streamlit as st
-from dotenv import load_dotenv
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-# Columns for final Excel
-COLUMNS_NEW = [
-    "Submitted By", "Entry Date", "Entry Time", "Partner Name", "Company Name",
-    "Policy Number", "Insured Name", "Start Date", "Expiry Date", "Registration No.",
-    "Make & Model", "Product Type", "Policy Type", "Seating Capacity", "GVW", "CC",
-    "Engine No.", "Chassis No.", "Mfg.Year", "Total IDV", "NCB", "OD PREMIUM",
-    "Net PREMIUM", "Final Premium", "Mode of Payment", "Bank Name", "Cheque No.",
-    "Cheque/Receive Date", "Amount Received", "Base For Commission", "Commissiable Premium",
-    "Agent Name", "Agent %", "Agent Comm. Amt", "Short fall", "Net Payable", "Remarks",
-    "Our Com %", "Our Com Amt", "% Received", "Com Received", "Com Month", "Ad. Com %",
-    "AD.Com Amt", "Recovery Amt", "Gross Profit", "Notes", "Source File"
-]
+from app.policy_extraction_config import PolicyExtractorConfig
 
 # Columns for final Excel
 COLUMNS = [
@@ -30,46 +13,13 @@ COLUMNS = [
 ]
 
 
-def initialize_llm():
-    """Initializes Gemini LLM."""
-    load_dotenv()
-    api_key = os.getenv("GOOGLE_API_KEY")
-    if not api_key:
-        st.error("Google API key not set. Please set GOOGLE_API_KEY.")
-        st.stop()
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.5-flash", temperature=0,top_p=1.0, google_api_key=api_key
-    )
-
-
-def extract_text_from_pdf(pdf_file):
-    """Extracts text from PDF bytes."""
-    text = ""
-    with pdfplumber.open(pdf_file) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-    return text
-
-
-def clean_json_output(raw_output: str):
-    """Cleans Gemini's raw output and converts it to JSON dict."""
-    try:
-        # Remove markdown fences if present
-        if raw_output.startswith("```"):
-            raw_output = raw_output.strip("`")
-            raw_output = raw_output.split("json\n")[-1]
-            raw_output = raw_output.split("```")[0]
-        return json.loads(raw_output)
-    except Exception as e:
-        st.error(f" JSON parsing failed: {e}")
-        return {}
-
-
-def extract_with_ai(text, source_file):
+def extract_with_ai(llm, source_file):
     """Send PDF text to Gemini LLM and extract structured info."""
-    llm = initialize_llm()
+
+    extractor = PolicyExtractorConfig(source_file)
+    text = extractor.extract_text_from_pdf()
+    print("Text", text)
+
     prompt = f"""
     Extract the following fields from this insurance policy text and return ONLY valid JSON:
     {COLUMNS}
@@ -131,7 +81,8 @@ def extract_with_ai(text, source_file):
 
     response = llm.invoke(prompt)
     raw_output = response.content.strip()
-    parsed = clean_json_output(raw_output)
+
+    parsed = extractor.clean_json_output(raw_output)
 
     # Fill default structure
     data = {col: "" for col in COLUMNS}
@@ -145,25 +96,20 @@ def extract_with_ai(text, source_file):
     entry_time = now.strftime("%H:%M:%S")
     data["Entry Date"] = entry_date
     data["Entry Time"] = entry_time
-    data["Source File"] = source_file
+    data["Source File"] = source_file.name
 
     return data
 
 
-def main():
-    st.title("Insurance Policy Extractor")
-    uploaded_files = st.file_uploader(
-        "Upload Insurance Policy PDF(s)", type=["pdf"], accept_multiple_files=True
-    )
-
-    if uploaded_files:
+def main(uploaded_file):
+    st.title("Digit Insurance Policy Extractor")
+    extractor = PolicyExtractorConfig(uploaded_file)
+    llm = extractor.initialize_llm()
+    if uploaded_file:
         all_records = []
         with st.spinner("Extracting data..."):
-            for uploaded_file in uploaded_files:
-                text = extract_text_from_pdf(uploaded_file)
-                print("Text", text)
-                record = extract_with_ai(text, uploaded_file.name)
-                all_records.append(record)
+            record = extract_with_ai(llm, uploaded_file)
+            all_records.append(record)
 
         df = pd.DataFrame(all_records)
         st.success("Extraction complete!")
@@ -181,5 +127,6 @@ def main():
             )
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     input_file = st.file_uploader("Upload Insurance Policy PDF.", type=["pdf"])
+#     main(input_file)
