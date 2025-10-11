@@ -13,6 +13,7 @@ Supports export of results to Excel and clean JSON display.
 
 
 ## Project Structure
+```
 Data-Extractor/
 │
 ├── app/
@@ -34,9 +35,9 @@ Data-Extractor/
 ├── data_with_new_form.py            # Takes the input data from user
 ├── .gitignore                       # Files ignored by git
 └── venv/                            # Python virtual environment (recommended)
+```
 
-
-## ⚙️ Installation
+## Installation
 
 ### 1. Clone the repository
 
