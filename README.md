@@ -69,6 +69,6 @@ GOOGLE_API_KEY="your_google_api_key_here"
 ### 5. After setup, run the Streamlit app using:
 ```bash
 cd app
-streamlit run combined_data.py
+streamlit run main.py
 ```
 
