@@ -114,17 +114,7 @@ def main(uploaded_file):
         df = pd.DataFrame(all_records)
         st.success("Extraction complete!")
         st.dataframe(df)
-
-        # Download Excel
-        excel_file = "insurance_extract.xlsx"
-        df.to_excel(excel_file, index=False)
-        with open(excel_file, "rb") as f:
-            st.download_button(
-                label="Download Excel",
-                data=f,
-                file_name="insurance_extract.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        return df
 
 
 # if __name__ == "__main__":

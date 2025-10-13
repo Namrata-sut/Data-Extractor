@@ -8,8 +8,8 @@ COLUMNS = [
     "Company Name",
     "Policy Number", "Insured Name", "Start Date", "Expiry Date", "Registration No.",
     "Make & Model", "Product Type", "Policy type", "Seating Capacity", "GVW", "CC",
-    "Engine No.", "Chassis No.", "Mfg.Year", "Total IDV", "NCB Claimed", "Total OD PREMIUM",
-    "Total Net PREMIUM", "Total Final Premium", "Source File"
+    "Engine No.", "Chassis No.", "Mfg.Year", "Total IDV", "NCB Claimed", "Total OD Premium",
+    "Total Net PREMIUM", "Total Premium", "Source File"
 ]
 
 
@@ -65,17 +65,7 @@ def main(uploaded_file):
         df = pd.DataFrame(all_records)
         st.success("Extraction complete!")
         st.dataframe(df)
-
-        # Download Excel
-        excel_file = "insurance_extract.xlsx"
-        df.to_excel(excel_file, index=False)
-        with open(excel_file, "rb") as f:
-            st.download_button(
-                label="Download Excel",
-                data=f,
-                file_name="insurance_extract.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        return df
 
 
 # if __name__ == "__main__":

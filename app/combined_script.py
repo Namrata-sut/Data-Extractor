@@ -43,17 +43,19 @@ def main():
             text = extractor.extract_text_from_pdf()
             llm = extractor.initialize_llm()
             company = extract_company_name_llm(text, llm)
-
         if not company:
             st.error("Could not detect company (Reliance, Tata, Digit) in the PDF text.")
             st.stop()
         try:
             if 'reliance' in company.lower():
-                reliance_data_extraction.main(uploaded_file)
+                df = reliance_data_extraction.main(uploaded_file)
+                return df
             if 'digit' in company.lower():
-                digit_data_extraction.main(uploaded_file)
+                df = digit_data_extraction.main(uploaded_file)
+                return df
             if 'tata' in company.lower():
-                tata_data_extraction.main(uploaded_file)
+                df = tata_data_extraction.main(uploaded_file)
+                return df
         except Exception as e:
             st.error(f"Failed to import extraction for company {company}: {e}")
             st.stop()
