@@ -1,3 +1,5 @@
 .idea
 .env
 venv
+app/__pycache__/
+ app/company_extractor/__pycache__/
