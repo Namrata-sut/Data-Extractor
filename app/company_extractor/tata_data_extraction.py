@@ -13,7 +13,7 @@ COLUMNS = [
 ]
 
 
-def extract_with_ai(text, llm, source_file):
+def extract_with_ai(llm, text, source_file):
     """Send PDF text to Gemini LLM and extract structured info."""
     prompt = f"""
     Extract the following fields from this insurance policy text and return ONLY valid JSON:
@@ -51,20 +51,17 @@ def extract_with_ai(text, llm, source_file):
     return data
 
 
-def main(uploaded_file):
-    st.subheader("Tata Insurance Policy Extraction")
+def main(text, uploaded_file):
     if uploaded_file:
         extractor = PolicyExtractorConfig(uploaded_file)
         llm = extractor.initialize_llm()
         all_records = []
-        with st.spinner("Extracting data..."):
-            text = extractor.extract_text_from_pdf()
-            record = extract_with_ai(text, llm, uploaded_file)
+        with st.spinner("Extracting data tata..."):
+            record = extract_with_ai(llm, text, uploaded_file)
             all_records.append(record)
 
         df = pd.DataFrame(all_records)
         st.success("Extraction complete!")
-        st.dataframe(df)
         return df
 
 

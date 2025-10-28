@@ -13,11 +13,11 @@ COLUMNS = [
 ]
 
 
-def extract_with_ai(llm, source_file):
+def extract_with_ai(llm, text, source_file):
     """Send PDF text to Gemini LLM and extract structured info."""
 
     extractor = PolicyExtractorConfig(source_file)
-    text = extractor.extract_text_from_pdf()
+    # text = extractor.extract_text_from_pdf()
     print("Text", text)
 
     prompt = f"""
@@ -101,19 +101,17 @@ def extract_with_ai(llm, source_file):
     return data
 
 
-def main(uploaded_file):
-    st.subheader("Digit Insurance Policy Extraction")
+def main(text, uploaded_file):
     extractor = PolicyExtractorConfig(uploaded_file)
     llm = extractor.initialize_llm()
     if uploaded_file:
         all_records = []
-        with st.spinner("Extracting data..."):
-            record = extract_with_ai(llm, uploaded_file)
+        with st.spinner("Extracting digit data..."):
+            record = extract_with_ai(llm, text, uploaded_file)
             all_records.append(record)
 
         df = pd.DataFrame(all_records)
         st.success("Extraction complete!")
-        st.dataframe(df)
         return df
 
 
