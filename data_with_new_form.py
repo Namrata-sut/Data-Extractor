@@ -288,21 +288,31 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file:
-    # Check for duplicate Policy Number, Registration No., or Source File before showing form
+    # Check for duplicate Source File, Policy Number, or Registration No. before showing form
     duplicate_found = False
+
     if os.path.exists(SAVE_FILE):
         existing_df = pd.read_excel(SAVE_FILE)
         row = parse_pdf(uploaded_file)  # Parse PDF to get Policy Number and Registration No.
         row["Source File"] = uploaded_file.name
+
+        # 1️⃣ Check if Source File already exists
         if "Source File" in existing_df.columns and uploaded_file.name in existing_df["Source File"].values:
-            st.error("This data has already been updated.")
+            st.error("This file has already been uploaded.")
             duplicate_found = True
+
+        # 2️⃣ If Source File not duplicate, check Policy Number
         elif "Policy Number" in existing_df.columns and row["Policy Number"] in existing_df["Policy Number"].values:
-            st.error("Policy Number already exists.")
+            st.error(f"Policy Number '{row['Policy Number']}' already exists.")
             duplicate_found = True
-        elif "Registration No." in existing_df.columns and row["Registration No."] and row["Registration No."] in \
-                existing_df["Registration No."].values:
-            st.error("Registration No. already exists.")
+
+        # 3️⃣ If still not duplicate, check Registration No.
+        elif (
+            "Registration No." in existing_df.columns
+            and row.get("Registration No.")
+            and row["Registration No."] in existing_df["Registration No."].values
+        ):
+            st.error(f"Registration No. '{row['Registration No.']}' already exists.")
             duplicate_found = True
 
     # Show form only if no duplicates

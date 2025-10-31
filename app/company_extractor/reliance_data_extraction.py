@@ -85,6 +85,27 @@ def main(text, uploaded_file):
             all_records.append(record)
 
         df = pd.DataFrame(all_records)
+
+        # Rename and rearrange columns as per final structure
+        rename_map = {
+            "Policy type": "Policy Type",
+            "NCB Claimed": "NCB",
+            "Total OD Premium": "OD PREMIUM",
+            "Total Package Premium": "Net PREMIUM",
+            "Total Premium": "Final Premium",
+        }
+
+        df.rename(columns=rename_map, inplace=True)
+
+        final_columns = [
+            "Entry Date", "Entry Time", "Company Name", "Policy Number", "Insured Name",
+            "Start Date", "Expiry Date", "Registration No.", "Make & Model", "Product Type",
+            "Policy Type", "Seating Capacity", "GVW", "CC", "Engine No.", "Chassis No.",
+            "Mfg.Year", "Total IDV", "NCB", "OD PREMIUM", "Net PREMIUM", "Final Premium"
+        ]
+
+        df = df[final_columns]
+
         st.success("Extraction complete!")
         return df
 

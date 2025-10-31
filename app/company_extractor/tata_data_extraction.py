@@ -61,6 +61,18 @@ def main(text, uploaded_file):
             all_records.append(record)
 
         df = pd.DataFrame(all_records)
+
+        # ---- COLUMN RENAME/REARRANGE BLOCK ----
+
+        rename_map = {
+            "Policy type": "Policy Type",
+            "NCB Claimed": "NCB",
+            "Total OD Premium": "OD PREMIUM",
+            "Total Net PREMIUM": "Net PREMIUM",
+            "Total Premium": "Final Premium"
+        }
+
+        df.rename(columns=rename_map, inplace=True)
         st.success("Extraction complete!")
         return df
 

@@ -38,7 +38,7 @@ def input_form_data(od_premium, net_premium):
             cheque_no = st.text_input("Cheque No. *", value=form_values.get("Cheque No.", ""), disabled=is_submitted)
 
         cheque_date = st.date_input("Cheque/Receive Date *", disabled=is_submitted)
-        amount_received = st.number_input("Amount Received *", min_value=0.0, format="%.2f", disabled=is_submitted)
+        amount_received = st.number_input("Amount Received *", min_value=0, value=0)
         remarks = st.text_area("Remarks *", value=form_values.get("Remarks", ""), disabled=is_submitted)
         partner_name = st.selectbox("Partner Name *", partner_names,
                                     index=partner_names.index(form_values.get("Partner Name", partner_names[0])),
@@ -52,7 +52,8 @@ def input_form_data(od_premium, net_premium):
         base_for_commission = st.selectbox("Base For Commission *", ["OD", "NET"],
                                            index=["OD", "NET"].index(form_values.get("Base For Commission", "OD")),
                                            disabled=is_submitted)
-        agent_percentage = st.number_input("Agent % *", min_value=0.0, format="%.2f", disabled=is_submitted)
+        agent_percentage = st.number_input("Agent % *", min_value=0, value=0)
+
 
         # Submit button
         submit_button = st.form_submit_button("Submit Details", disabled=is_submitted)
