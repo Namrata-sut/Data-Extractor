@@ -6,9 +6,10 @@ from datetime import datetime
 st.set_page_config(page_title="Insurance Policy Extractor", layout="wide")
 
 # Sample dropdown options
-partner_names = ["Partner A", "Partner B", "Partner C"]
-agent_names = ["Agent X", "Agent Y", "Agent Z"]
-submitted_by_options = ["User 1", "User 2", "User 3"]
+df = pd.read_excel(r"C:\AI\Data-Extractor\sample.xlsx")
+partner_names = df["Partner name"].dropna().unique().tolist()
+agent_names = df["Agent name"].dropna().unique().tolist()
+submitted_by_options = df["Submitted by"].dropna().unique().tolist()
 
 
 def input_form_data(od_premium, net_premium):
@@ -22,22 +23,25 @@ def input_form_data(od_premium, net_premium):
     is_submitted = st.session_state.form_submitted
     form_values = st.session_state.form_data
 
-    with st.form(key="additional_details_form"):
-        # Form fields
-        mode_of_payment = st.selectbox(
-            "Mode of Payment *", ["Online", "Cash", "Cheque"],
-            index=["Online", "Cash", "Cheque"].index(form_values.get("Mode of Payment", "Online")),
-            disabled=is_submitted
-        )
+    # Move Mode of Payment OUTSIDE the form
+    mode_of_payment = st.selectbox(
+        "Mode of Payment *", ["Online", "Cash", "Cheque"],
+        index=["Online", "Cash", "Cheque"].index(form_values.get("Mode of Payment", "Online")),
+        disabled=is_submitted
+    )
 
-        bank_name = form_values.get("Bank Name", "N/A")
-        cheque_no = form_values.get("Cheque No.", "N/A")
+    # The rest of the inputs inside the form
+    with st.form(key="additional_details_form"):
 
         if mode_of_payment == "Cheque":
             bank_name = st.text_input("Bank Name *", value=form_values.get("Bank Name", ""), disabled=is_submitted)
             cheque_no = st.text_input("Cheque No. *", value=form_values.get("Cheque No.", ""), disabled=is_submitted)
+            cheque_date = st.date_input("Cheque/Receive Date *", disabled=is_submitted)
+        else:
+            bank_name = form_values.get("Bank Name", "N/A")
+            cheque_no = form_values.get("Cheque No.", "N/A")
+            cheque_date = None
 
-        cheque_date = st.date_input("Cheque/Receive Date *", disabled=is_submitted)
         amount_received = st.number_input("Amount Received *", min_value=0, value=0)
         remarks = st.text_area("Remarks *", value=form_values.get("Remarks", ""), disabled=is_submitted)
         partner_name = st.selectbox("Partner Name *", partner_names,
@@ -53,7 +57,6 @@ def input_form_data(od_premium, net_premium):
                                            index=["OD", "NET"].index(form_values.get("Base For Commission", "OD")),
                                            disabled=is_submitted)
         agent_percentage = st.number_input("Agent % *", min_value=0, value=0)
-
 
         # Submit button
         submit_button = st.form_submit_button("Submit Details", disabled=is_submitted)
