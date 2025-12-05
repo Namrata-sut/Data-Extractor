@@ -68,12 +68,20 @@ def input_form_data(od_premium, net_premium):
         submit_button = st.form_submit_button("Submit Details", disabled=is_submitted)
 
         if submit_button and not is_submitted:
-            # Validation for mandatory fields
-            if (mode_of_payment and
-                    (mode_of_payment != "Cheque" or (bank_name and cheque_no)) and
-                    cheque_date and amount_received and remarks and partner_name and agent_name and
-                    submitted_by and base_for_commission and agent_percentage is not None):
 
+            is_valid = (
+                    mode_of_payment
+                    and (mode_of_payment != "Cheque" or (bank_name and cheque_no and cheque_date))
+                    and amount_received is not None
+                    and remarks.strip() != ""
+                    and partner_name
+                    and agent_name
+                    and submitted_by
+                    and base_for_commission
+                    and agent_percentage is not None
+            )
+
+            if is_valid:
                 # Save in session state
                 st.session_state.form_data = {
                     "Mode of Payment": mode_of_payment,

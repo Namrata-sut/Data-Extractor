@@ -10,7 +10,6 @@ SAVE_FILE = (
     "https://docs.google.com/spreadsheets/d/1GoTHOZINGQ4Lb3f0joO_i9AskAWfq51jxnqktHlpX_0/export?format=xlsx"
 )
 
-st.dataframe(pd.read_excel(SAVE_FILE, engine="openpyxl"))
 st.set_page_config(page_title="Insurance Policy PDF Extractor", layout="wide")
 st.title("Insurance Policy PDF Extractor")
 
