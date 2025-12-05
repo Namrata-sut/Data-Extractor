@@ -9,6 +9,8 @@ from style import style_excel
 SAVE_FILE = (
     "https://docs.google.com/spreadsheets/d/1GoTHOZINGQ4Lb3f0joO_i9AskAWfq51jxnqktHlpX_0/export?format=xlsx"
 )
+# saved_data = pd.read_excel(SAVE_FILE, engine="openpyxl")
+# st.dataframe(saved_data)
 
 st.set_page_config(page_title="Insurance Policy PDF Extractor", layout="wide")
 st.title("Insurance Policy PDF Extractor")
@@ -33,7 +35,7 @@ if uploaded_file is not None:
     file_already_exists = False
 
     # ✅ Step 1: Check if file name already exists before extraction
-    if os.path.exists(SAVE_FILE):
+    if SAVE_FILE:
         try:
             saved_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
             if "Source File" in saved_df.columns and file_name in saved_df["Source File"].values:
@@ -82,7 +84,7 @@ if uploaded_file is not None:
             is_duplicate = False
             error_message = ""
 
-            if os.path.exists(SAVE_FILE):
+            if SAVE_FILE:
                 try:
                     saved_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
 
@@ -120,6 +122,7 @@ if uploaded_file is not None:
             input_form_df = input_form_data(total_od_premium, total_premium_payable)
 
             if input_form_df is not None:
+                st.session_state.form_submitted = True
                 final_df = pd.concat(
                     [extracted_df.reset_index(drop=True), input_form_df.reset_index(drop=True)], axis=1
                 )
@@ -127,7 +130,7 @@ if uploaded_file is not None:
                 st.session_state.final_df = final_df
 
                 try:
-                    if os.path.exists(SAVE_FILE):
+                    if SAVE_FILE:
                         existing_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
                         full_df = pd.concat([existing_df, st.session_state.final_df], ignore_index=True)
                     else:
@@ -172,48 +175,49 @@ if uploaded_file is not None:
 
 # --- 5. Final Data Preview & Download ---
 if st.session_state.final_df is not None:
-    # --- 6. Show Entire Saved Data with Styling ---
-    if os.path.exists(SAVE_FILE):
-        st.subheader("Final Data Preview")
-        try:
-            # Read the saved Excel file
-            saved_data = pd.read_excel(SAVE_FILE, engine="openpyxl")
-            # Specify desired column order (copy-pasted from your template)
-            columns = [
-                "Submitted By", "Entry Date", "Entry Time", "Partner Name", "Company Name",
-                "Policy Number", "Insured Name", "Start Date", "Expiry Date", "Registration No.",
-                "Make & Model", "Product Type", "Policy Type", "Seating Capacity", "GVW",
-                "CC", "Engine No.", "Chassis No.", "Mfg.Year", "Total IDV",
-                "NCB", "OD PREMIUM", "Net PREMIUM", "Final Premium", "Mode of Payment",
-                "Bank Name", "Cheque No.", "Cheque/Receive Date", "Amount Received", "Base For Commission",
-                "Commissiable Premium", "Agent Name", "Agent %", "Agent Comm. Amt", "Short fall",
-                "Net Payable", "Remarks", "Our Com %", "Our Com Amt",
-                "% Received", "Com Received", "Com Month", "Ad. Com %", "AD.Com Amt",
-                "Recovery Amt", "Gross Profit", "Notes", "Source File"
-            ]
+    st.subheader("Final Data Preview")
 
-            # Fill any missing columns with empty string
-            for col in columns:
-                if col not in saved_data.columns:
-                    saved_data[col] = ""
+    try:
+        # Read from Google Sheet
+        saved_data = pd.read_excel(SAVE_FILE, engine="openpyxl")
 
-            # Reorder
-            saved_df = saved_data[columns]
+        # Correct column order
+        columns = [
+            "Submitted By", "Entry Date", "Entry Time", "Partner Name", "Company Name",
+            "Policy Number", "Insured Name", "Start Date", "Expiry Date", "Registration No.",
+            "Make & Model", "Product Type", "Policy Type", "Seating Capacity", "GVW",
+            "CC", "Engine No.", "Chassis No.", "Mfg.Year", "Total IDV",
+            "NCB", "OD PREMIUM", "Net PREMIUM", "Final Premium", "Mode of Payment",
+            "Bank Name", "Cheque No.", "Cheque/Receive Date", "Amount Received", "Base For Commission",
+            "Commissiable Premium", "Agent Name", "Agent %", "Agent Comm. Amt", "Short fall",
+            "Net Payable", "Remarks", "Our Com %", "Our Com Amt",
+            "% Received", "Com Received", "Com Month", "Ad. Com %", "AD.Com Amt",
+            "Recovery Amt", "Gross Profit", "Notes", "Source File"
+        ]
 
-            # Apply your custom Excel styling
-            styled_excel_data = style_excel(saved_df)
-            # Display the styled data preview
-            st.dataframe(saved_df, use_container_width=True)
-            # Download button for styled Excel
-            st.download_button(
-                label="Download Styled Excel",
-                data=styled_excel_data,
-                file_name="insurance_extract_styled.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
-        except Exception as e:
-            st.error(f"Error loading or styling saved Excel file: {e}")
-    else:
-        st.info("No saved data found yet.")
+        # Add missing columns if any
+        for col in columns:
+            if col not in saved_data.columns:
+                saved_data[col] = ""
 
+        # Reorder columns
+        saved_data = saved_data[columns]
 
+        # Apply your Excel styling
+        styled_excel_data = style_excel(saved_data)
+
+        # Display preview in Streamlit
+        st.dataframe(saved_data, use_container_width=True)
+
+        # Download styled Excel
+        st.download_button(
+            "Download Styled Excel",
+            styled_excel_data,
+            "insurance_extract_styled.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as e:
+        st.error(f"Error loading/styling data from SAVE_FILE: {e}")
+else:
+    st.info("No saved data found yet.")
