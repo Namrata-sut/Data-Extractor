@@ -47,7 +47,7 @@ if uploaded_file is not None:
                 st.subheader("Existing Saved Data")
                 try:
                     styled_excel_data = style_excel(saved_df)
-                    st.dataframe(saved_df, use_container_width=True)
+                    # st.dataframe(saved_df, use_container_width=True)
 
                     st.download_button(
                         label="Download Styled Excel",
@@ -137,7 +137,7 @@ if uploaded_file is not None:
                     else:
                         full_df = st.session_state.final_df
 
-                    st.dataframe(full_df, use_container_width=True)
+                    # st.dataframe(full_df, use_container_width=True)
                     import gspread
                     import pandas as pd
                     from oauth2client.service_account import ServiceAccountCredentials
