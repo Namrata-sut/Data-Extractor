@@ -11,10 +11,10 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 class PolicyExtractorConfig:
     def __init__(self, pdf_file):
         load_dotenv()
-        if os.path.exists(".env"):
-            self.api_key = os.getenv("GOOGLE_API_KEY")
-        else:
-            self.api_key = st.secrets["api_keys"]["GOOGLE_API_KEY"]
+        # if os.path.exists(".env"):
+        self.api_key = os.getenv("GOOGLE_API_KEY")
+        # else:
+        #     self.api_key = st.secrets["api_keys"]["GOOGLE_API_KEY"]
         self.pdf_file = pdf_file
 
     def initialize_llm(self):

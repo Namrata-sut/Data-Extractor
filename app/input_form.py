@@ -5,8 +5,13 @@ from datetime import datetime
 # Streamlit app configuration
 st.set_page_config(page_title="Insurance Policy Extractor", layout="wide")
 
-# Sample dropdown options
-df = pd.read_excel(r"C:\AI\Data-Extractor\sample.xlsx")
+EXPORT_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1rm66-CcEAJ_1Z28qXbBi5GJuyp0R-eSo/"
+    "export?format=xlsx"
+)
+
+df = pd.read_excel(EXPORT_URL, engine="openpyxl")
 partner_names = df["Partner name"].dropna().unique().tolist()
 agent_names = df["Agent name"].dropna().unique().tolist()
 submitted_by_options = df["Submitted by"].dropna().unique().tolist()
@@ -64,9 +69,9 @@ def input_form_data(od_premium, net_premium):
         if submit_button and not is_submitted:
             # Validation for mandatory fields
             if (mode_of_payment and
-                (mode_of_payment != "Cheque" or (bank_name and cheque_no)) and
-                cheque_date and amount_received and remarks and partner_name and agent_name and
-                submitted_by and base_for_commission and agent_percentage is not None):
+                    (mode_of_payment != "Cheque" or (bank_name and cheque_no)) and
+                    cheque_date and amount_received and remarks and partner_name and agent_name and
+                    submitted_by and base_for_commission and agent_percentage is not None):
 
                 # Save in session state
                 st.session_state.form_data = {
