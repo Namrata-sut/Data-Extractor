@@ -173,7 +173,7 @@ if uploaded_file is not None:
         else:
             missing_cols = [col for col in required_cols if col not in extracted_df.columns]
             st.error(f"Extraction failed to produce required columns: {missing_cols}")
-            st.dataframe(extracted_df)
+            # st.dataframe(extracted_df)
 
 # --- 5. Final Data Preview & Download ---
 if st.session_state.final_df is not None:
