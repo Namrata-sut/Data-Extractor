@@ -6,7 +6,11 @@ from input_form import input_form_data
 from style import style_excel
 
 # --- 1. Page, State, and File Configuration ---
-SAVE_FILE = "insurance_extract.xlsx"
+SAVE_FILE = (
+    "https://docs.google.com/spreadsheets/d/1GoTHOZINGQ4Lb3f0joO_i9AskAWfq51jxnqktHlpX_0/export?format=xlsx"
+)
+
+st.dataframe(pd.read_excel(SAVE_FILE, engine="openpyxl"))
 st.set_page_config(page_title="Insurance Policy PDF Extractor", layout="wide")
 st.title("Insurance Policy PDF Extractor")
 
@@ -32,7 +36,7 @@ if uploaded_file is not None:
     # ✅ Step 1: Check if file name already exists before extraction
     if os.path.exists(SAVE_FILE):
         try:
-            saved_df = pd.read_excel(SAVE_FILE)
+            saved_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
             if "Source File" in saved_df.columns and file_name in saved_df["Source File"].values:
                 st.error(f"The file '{file_name}' has already been uploaded.")
                 file_already_exists = True
@@ -81,7 +85,7 @@ if uploaded_file is not None:
 
             if os.path.exists(SAVE_FILE):
                 try:
-                    saved_df = pd.read_excel(SAVE_FILE)
+                    saved_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
 
                     # Check for duplicate Policy Number
                     if 'Policy Number' in saved_df.columns and 'Policy Number' in df_to_check.columns:
@@ -125,12 +129,40 @@ if uploaded_file is not None:
 
                 try:
                     if os.path.exists(SAVE_FILE):
-                        existing_df = pd.read_excel(SAVE_FILE)
+                        existing_df = pd.read_excel(SAVE_FILE, engine="openpyxl")
                         full_df = pd.concat([existing_df, st.session_state.final_df], ignore_index=True)
                     else:
                         full_df = st.session_state.final_df
 
-                    full_df.to_excel(SAVE_FILE, index=False)
+                    st.dataframe(full_df, use_container_width=True)
+                    import gspread
+                    import pandas as pd
+                    from oauth2client.service_account import ServiceAccountCredentials
+
+                    # Scopes
+                    scope = [
+                        "https://www.googleapis.com/auth/spreadsheets",
+                        "https://www.googleapis.com/auth/drive"
+                    ]
+
+                    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+                    client = gspread.authorize(creds)
+
+                    # Your Google Sheet URL
+                    sheet_url = "https://docs.google.com/spreadsheets/d/1GoTHOZINGQ4Lb3f0joO_i9AskAWfq51jxnqktHlpX_0/edit?usp=drive_link"
+
+                    sheet = client.open_by_url(sheet_url).sheet1
+
+                    # Convert df to string to avoid Arrow errors
+                    df_to_append = full_df.astype(str)
+
+                    # Convert df to list of lists
+                    rows = df_to_append.values.tolist()
+
+                    # Append each row without clearing existing data
+                    for row in rows:
+                        sheet.append_row(row, value_input_option='USER_ENTERED')
+
                     st.success(f"Data successfully saved to '{SAVE_FILE}'")
                 except Exception as e:
                     st.error(f"Failed to save data: {e}")
@@ -146,7 +178,7 @@ if st.session_state.final_df is not None:
         st.subheader("Final Data Preview")
         try:
             # Read the saved Excel file
-            saved_data = pd.read_excel(SAVE_FILE)
+            saved_data = pd.read_excel(SAVE_FILE, engine="openpyxl")
             # Specify desired column order (copy-pasted from your template)
             columns = [
                 "Submitted By", "Entry Date", "Entry Time", "Partner Name", "Company Name",

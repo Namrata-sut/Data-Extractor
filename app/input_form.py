@@ -47,7 +47,8 @@ def input_form_data(od_premium, net_premium):
             cheque_no = form_values.get("Cheque No.", "N/A")
             cheque_date = None
 
-        amount_received = st.number_input("Amount Received *", min_value=0, value=0)
+        amount_received = st.number_input("Amount Received", min_value=0, value=0)
+
         remarks = st.text_area("Remarks *", value=form_values.get("Remarks", ""), disabled=is_submitted)
         partner_name = st.selectbox("Partner Name *", partner_names,
                                     index=partner_names.index(form_values.get("Partner Name", partner_names[0])),
