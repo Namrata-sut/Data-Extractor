@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 import streamlit as st
 from combined_script import run_extraction
@@ -146,7 +148,8 @@ if uploaded_file is not None:
                         "https://www.googleapis.com/auth/drive"
                     ]
 
-                    creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+                    creds_dict = json.loads(st.secrets["google"]["credentials"])
+                    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
                     client = gspread.authorize(creds)
 
                     # Your Google Sheet URL
