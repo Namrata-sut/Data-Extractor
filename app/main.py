@@ -1,6 +1,5 @@
 import pandas as pd
 import streamlit as st
-import os
 from combined_script import run_extraction
 from input_form import input_form_data
 from style import style_excel
