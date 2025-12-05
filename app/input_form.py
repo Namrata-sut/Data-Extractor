@@ -68,6 +68,35 @@ def input_form_data(od_premium, net_premium):
         submit_button = st.form_submit_button("Submit Details", disabled=is_submitted)
 
         if submit_button and not is_submitted:
+            # --- Check mandatory fields ---
+            missing_fields = []
+
+            if not mode_of_payment:
+                missing_fields.append("Mode of Payment")
+            if mode_of_payment == "Cheque":
+                if not bank_name:
+                    missing_fields.append("Bank Name")
+                if not cheque_no:
+                    missing_fields.append("Cheque No.")
+                if not cheque_date:
+                    missing_fields.append("Cheque/Receive Date")
+            if not remarks.strip():
+                missing_fields.append("Remarks")
+            if not partner_name:
+                missing_fields.append("Partner Name")
+            if not agent_name:
+                missing_fields.append("Agent Name")
+            if not submitted_by:
+                missing_fields.append("Submitted By")
+            if not base_for_commission:
+                missing_fields.append("Base For Commission")
+            if agent_percentage is None:
+                missing_fields.append("Agent %")
+
+            # Show error if any mandatory field is missing
+            if missing_fields:
+                st.error(f"Please fill all mandatory fields: {', '.join(missing_fields)}")
+                return None
 
             is_valid = (
                     mode_of_payment
