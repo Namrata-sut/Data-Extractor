@@ -4,3 +4,4 @@ venv
 app/__pycache__/
  app/company_extractor/__pycache__/
 app/service_account.json
+.devcontainer
